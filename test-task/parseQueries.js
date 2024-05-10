@@ -86,14 +86,14 @@ const parsePage = (request, response) => {
     let { exportType } = request.query;
     const { authorization } = request.headers;
 
-    //if (!authorization) return response.status(401).json({message: 'User unauthorized.'});
+    if (!authorization) return response.status(401).json({message: 'User unauthorized.'});
 
     //Checking if JWT is valid
-    /*try{
+    try{
         const decodedData = jwt.verify(authorization, process.env.JWT_SECRET);
     } catch(error) {
         return response.status(401).json({message: 'User unauthorized.'});
-    }*/
+    }
 
     //Checking if JWT is blacklisted. If no - proceed with parsing
     pool.query('SELECT * FROM expired_tokens WHERE token = $1', [authorization], async (error, results) => {
