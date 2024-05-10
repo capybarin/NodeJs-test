@@ -102,9 +102,9 @@ const parsePage = (request, response) => {
             return response.status(500).json({message: error.detail});
         }
 
-        /*if (Array.isArray(results.rows) && results.rows.length !== 0) {
+        if (Array.isArray(results.rows) && results.rows.length !== 0) {
             return response.status(401).json({message: 'User unauthorized.'});
-        } else*/ {
+        } else {
             //TODO PARSING HERE.
             try {
                 const {data} = await axios.get(urlToBeScrapped);
@@ -162,7 +162,7 @@ const parsePage = (request, response) => {
                     case 'GoogleSheet':
                         return null;
                     default:
-                        return [];
+                        return response.status(200).json({scrappedData: output});
                 }
 
             } catch (error) {
