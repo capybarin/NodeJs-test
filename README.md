@@ -43,10 +43,10 @@ The app contains 5 endpoint. 3 for auth purposes and 2 for scrapping purposes. E
 
 - /auth/sign-up - registers a new user.
 Requires request JSON body with mandatory `email` and `password` properties.
-Example request:
-{
-&emsp;"email": "testmail@mail.com",
-&emsp;"password": "123456"
+Example request:\
+{\
+&emsp;"email": "testmail@mail.com",\
+&emsp;"password": "123456"\
 }
 - /auth/login - logs in a registered user. If not registered an error will be returned. Requires request JSON body with mandatory `email` and `password` properties. If provided data is valid, a JWT will be returned. JWT is mandatory to make the following requests.
 Example request:\
