@@ -21,7 +21,7 @@ const dbConfig = {
 
 let pool = new pg.Pool(dbConfig)
 
-const allowedExportTypes = ['JSON', 'CSV', 'GoogleSheet'];
+const allowedExportTypes = ['json', 'csv', 'googlesheet'];
 
 const urlToBeScrapped = "https://interaction24.ixda.org/";
 
@@ -63,7 +63,9 @@ const parsePage = (request, response) => {
     let { exportType } = request.query;
     const { authorization } = request.headers;
 
-    if (!allowedExportTypes.includes(exportType)) exportType = 'JSON';
+    if (!allowedExportTypes.includes(exportType)) exportType = 'json';
+    exportType = exportType.toLowerCase();
+    
     if (!authorization) return response.status(401).json({message: 'User unauthorized.'});
 
     //Checking if JWT is valid
@@ -76,7 +78,6 @@ const parsePage = (request, response) => {
     //Checking if JWT is blacklisted. If no - proceed with parsing
     pool.query('SELECT * FROM expired_tokens WHERE token = $1', [authorization], (error, results) => {
         if (error) {
-            console.log(error);
             return response.status(500).json({message: error.detail});
         }
 
@@ -86,10 +87,10 @@ const parsePage = (request, response) => {
             pool.query('INSERT INTO parse_requests (user_id, export_type) VALUES ($1, $2)',
             [jwt.verify(authorization, process.env.JWT_SECRET).userData.id, exportType], async (error, results) => {
                     if (error) {
-                        console.log(error);
                         return response.status(500).json({message: error.detail});
                     } else {
                         try {
+                            //Begin scrapping
                             const {data} = await axios.get(urlToBeScrapped);
                             const $loadedData = cheerio.load(data);
                             const listItems = $loadedData('.speakers-list_item');
@@ -132,94 +133,77 @@ const parsePage = (request, response) => {
                                 output.push(elementObj);
                             });
 
+                            //Begin export
                             switch (exportType) {
-                                case 'JSON':
+                                case 'json':
                                     return response.status(200).json({scrappedData: output});
-                                case 'CSV':
+                                case 'csv':
                                     const fields = ['name', 'role', 'imgUrl', 'socialMedia'];
                                     const parser = new Parser({fields});
                                     const csv = parser.parse(output);
                                     response.header('Content-Type', 'text/csv');
                                     response.attachment('scrappedData.csv');
                                     return response.status(200).send(csv)
-                                case 'GoogleSheet':
-                                    console.log('go');
-                                    const auth = new google.auth.GoogleAuth({
-                                        keyFile: GoogleCredentialsFile,
-                                        scopes: 'https://www.googleapis.com/auth/spreadsheets'
-                                    });
+                                case 'googlesheet':
+                                    try {
+                                        const auth = new google.auth.GoogleAuth({
+                                            keyFile: GoogleCredentialsFile,
+                                            scopes: 'https://www.googleapis.com/auth/spreadsheets'
+                                        });
 
-                                    const client = await auth.getClient();
+                                        const client = await auth.getClient();
 
-                                    const googleSheets = google.sheets({version: 'v4', auth: client});
+                                        const googleSheets = google.sheets({version: 'v4', auth: client});
 
-                                    const spreadsheetMetaData = await googleSheets.spreadsheets.get({
-                                        auth,
-                                        spreadsheetId: GoogleSheetId,
-                                    });
-
-                                    //Creating a new sheet under a spreadsheet
-                                    let sheetTitle = 'scrappedData_' + (Math.random() + 1).toString(36).substring(7); //adding random string for testing purposes, to avoid duplicate names
-                                    await googleSheets.spreadsheets.batchUpdate({
-                                        auth,
-                                        spreadsheetId: GoogleSheetId,
-                                        requestBody: {
-                                            requests: {
-                                                addSheet: {
-                                                    properties: {
-                                                        title: sheetTitle,
-                                                        index: 0,
+                                        //Creating a new sheet under a spreadsheet
+                                        let sheetTitle = 'scrappedData_' + (Math.random() + 1).toString(36).substring(7); //adding random string for testing purposes, to avoid duplicate names
+                                        await googleSheets.spreadsheets.batchUpdate({
+                                            auth,
+                                            spreadsheetId: GoogleSheetId,
+                                            requestBody: {
+                                                requests: {
+                                                    addSheet: {
+                                                        properties: {
+                                                            title: sheetTitle,
+                                                            index: 0,
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                    })
+                                        })
 
-                                    //Adding headers into the newly created sheet
-                                    await googleSheets.spreadsheets.values.append({
-                                        auth,
-                                        spreadsheetId: GoogleSheetId,
-                                        range: sheetTitle+'!A:D',
-                                        valueInputOption: 'USER_ENTERED',
-                                        resource: {
-                                            values: [
-                                                ['name', 'role', 'imgUrl', 'socialMedia']
-                                            ]
-                                        }
-                                    })
+                                        //Appending data into newly created sheet
+                                        const requestValues = [];
+                                        requestValues.push(['name', 'role', 'imgUrl', 'socialMedia']); //Adding first row as headers
+                                        output.forEach(function (arrItem) {
+                                            const tmpArr = [];
+                                            tmpArr.push(arrItem.name, arrItem.role, arrItem.imgUrl, arrItem.socialMedia.join('\n'));
+                                            requestValues.push(tmpArr)
+                                        });
+                                        await googleSheets.spreadsheets.values.append({
+                                            auth,
+                                            spreadsheetId: GoogleSheetId,
+                                            range: sheetTitle + '!A:D',
+                                            valueInputOption: 'USER_ENTERED',
+                                            resource: {
+                                                values: requestValues,
+                                            }
+                                        })
 
-                                    //Appending data into newly 'headered' sheet
-                                    const requestValues = [];
-                                    output.forEach(function (arrItem) {
-                                        const tmpArr = [];
-                                        tmpArr.push(arrItem.name, arrItem.role, arrItem.imgUrl, arrItem.socialMedia.join('\n'));
-                                        requestValues.push(tmpArr)
-                                    });
 
-                                    await googleSheets.spreadsheets.values.append({
-                                        auth,
-                                        spreadsheetId: GoogleSheetId,
-                                        range: sheetTitle+'!A:D',
-                                        valueInputOption: 'USER_ENTERED',
-                                        resource: {
-                                            values: requestValues,
-                                        }
-                                    })
-
-                                    return response.status(200).json({
-                                        message: 'Successfully exported data to '+sheetTitle+' sheet.',
-                                        spreadsheetId: GoogleSheetId,
-                                        sheetName: sheetTitle,
-                                    });
+                                        return response.status(200).json({
+                                            message: 'Successfully exported data to ' + sheetTitle + ' sheet.',
+                                            spreadsheetId: GoogleSheetId,
+                                            sheetName: sheetTitle,
+                                        });
+                                    } catch (error) {return response.status(error.status).json({message: error.response.data.error_description});}
                                 default:
                                     return response.status(200).json({scrappedData: output});
                             }
 
                         } catch (error) {
-                            console.log(error);
+                            return response.status(500).json({message: error});
                         }
-
-                        return response.status(200).json({message: 'parsing...'});
                     }
                 })
         }

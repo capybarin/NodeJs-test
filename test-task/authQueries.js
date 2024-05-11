@@ -11,11 +11,36 @@ const dbConfig = {
 
 let pool = new pg.Pool(dbConfig);
 
+function isEmailValid(email) {
+    let emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!email)
+        return false;
+
+    if(email.length>254)
+        return false;
+
+    let valid = emailRegex.test(email);
+    if(!valid)
+        return false;
+
+    let parts = email.split("@");
+    if(parts[0].length>64)
+        return false;
+
+    let domainParts = parts[1].split(".");
+    if(domainParts.some(function(part) { return part.length>63; }))
+        return false;
+
+    return true;
+}
+
+
 const signupUser = (request, response) => {
     const { email, password } = request.body;
-    //TODO email validation
     if (!email) return response.status(422).json({message: 'The email input property is missing.'});
     if (!password) return response.status(422).json({message: 'The password input property is missing.'});
+
+    if (!isEmailValid(email)) {return response.status(422).json({message: 'The email is invalid.'});}
 
     pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, password], (error, results) => {
         if (error) {

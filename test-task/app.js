@@ -10,10 +10,6 @@ const port = process.env.DEV_PORT;
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
 //AUTH ENDPOINTS
 app.post('/auth/sign-up', dbAuth.signupUser);
 app.post('/auth/login', dbAuth.loginUser);
