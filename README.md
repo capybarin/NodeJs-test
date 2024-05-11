@@ -59,14 +59,14 @@ Example response:\
 &emsp;"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."\
 }
 - /auth/logout - logs out the provided token. Since invalidating JWTs is not a simple task, they are being moved to separate DB table to blacklist them. Requires request JSON body with mandatory `token` property.
-Example body:
-{
-&emsp;"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+Example body:\
+{\
+&emsp;"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"\
 }
 - /parse - parses the pre-defined web page and returns information about people mentioned on the page. Requires `Authorization` header with JWT in it (**NOTE**: do **not** provide prefixes like Bearer), like `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9`. Supports optional Query String `exportType` parameter with 3 possible values: `json`, `csv`, `googlesheet`; defaults to `json`. The parameter defines to which format data will be extracted.
-Example request:
+Example request:\
 GET http://localhost:5000/parse?exportType=csv
 - /parse-requests - lists all `/parse` requests made with basic info about them. Requires `Authorization` header with JWT in it (**NOTE**: do **not** provide prefixes like Bearer), like `Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9`. Does not have any inputs.
-Example request:
+Example request:\
 GET http://localhost:5000/parse-requests
 
