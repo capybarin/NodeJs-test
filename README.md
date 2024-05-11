@@ -70,3 +70,5 @@ GET http://localhost:5000/parse?exportType=csv
 Example request:\
 GET http://localhost:5000/parse-requests
 
+## Project structure
+All logic has been implemented within 3 files: `app.js`, `authQueries`, `parseQueries`. Also `.env` and `Google Service Account` files are needed for the app to function properly.
