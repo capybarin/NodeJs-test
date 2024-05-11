@@ -63,9 +63,9 @@ const parsePage = (request, response) => {
     let { exportType } = request.query;
     const { authorization } = request.headers;
 
-    if (!allowedExportTypes.includes(exportType)) exportType = 'json';
+    if (!allowedExportTypes.includes(exportType.toLowerCase())) exportType = 'json';
     exportType = exportType.toLowerCase();
-    
+
     if (!authorization) return response.status(401).json({message: 'User unauthorized.'});
 
     //Checking if JWT is valid
