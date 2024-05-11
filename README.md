@@ -42,7 +42,7 @@ SHEET_ID=
 The app contains 5 endpoint. 3 for auth purposes and 2 for scrapping purposes. Each of them have their own request sctructure and these will be shown below.
 
 - /auth/sign-up - registers a new user.
-Requires request JSON body with mandatory `email` and `password` properties.
+Requires request JSON body with mandatory `email` and `password` properties.\
 Example request:\
 {\
 &emsp;"email": "testmail@mail.com",\
