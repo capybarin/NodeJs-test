@@ -21,6 +21,7 @@ app.get('/auth/logout', dbAuth.logoutUser);
 
 //PARSE ENDPOINTS
 app.get('/parse', dbParse.parsePage);
+app.get('/parse-requests', dbParse.parseRequests);
 
 app.listen(port, () => {
   console.log(`Test app listening on port ${port}`);

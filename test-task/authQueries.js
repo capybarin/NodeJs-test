@@ -54,7 +54,7 @@ const logoutUser = (request, response) => {
     //JWT token based auth cannot be that simply logged out. The idea is to put JWT into a DB to track disabled ones.
     pool.query('INSERT INTO expired_tokens (token) VALUES ($1)', [token], (error, results) => {
         if (error) {
-            return response.status(400).json({message: error.detail});
+            return response.status(500).json({message: error.detail});
         }
         return response.status(200).json({message: 'Logged out.'});
     })

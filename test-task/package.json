@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
     "axios": "^1.6.8",
     "body-parser": "^1.20.2",
     "cheerio": "^1.0.0-rc.12",
@@ -13,13 +14,14 @@
     "debug": "~2.6.9",
     "dotenv": "^16.4.5",
     "express": "~4.16.1",
+    "googleapis": "^137.1.0",
     "http-errors": "~1.6.3",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "pg": "^8.11.5",
     "playwright": "^1.44.0",
-    "pug": "2.0.0-beta11",
-    "x-ray": "^2.3.4"
+    "process": "^0.11.10",
+    "pug": "2.0.0-beta11"
   }
 }
