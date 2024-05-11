@@ -49,14 +49,14 @@ Example request:
 &emsp;"password": "123456"
 }
 - /auth/login - logs in a registered user. If not registered an error will be returned. Requires request JSON body with mandatory `email` and `password` properties. If provided data is valid, a JWT will be returned. JWT is mandatory to make the following requests.
-Example request:
-{
-&emsp;"email": "testmail@mail.com",
-&emsp;"password": "123456"
-}
-Example response:
-{
-&emsp;"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+Example request:\
+{\
+&emsp;"email": "testmail@mail.com",\
+&emsp;"password": "123456"\
+}\
+Example response:\
+{\
+&emsp;"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."\
 }
 - /auth/logout - logs out the provided token. Since invalidating JWTs is not a simple task, they are being moved to separate DB table to blacklist them. Requires request JSON body with mandatory `token` property.
 Example body:
