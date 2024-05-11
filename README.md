@@ -72,3 +72,14 @@ GET http://localhost:5000/parse-requests
 
 ## Project structure
 All logic has been implemented within 3 files: `app.js`, `authQueries`, `parseQueries`. Also `.env` and `Google Service Account` files are needed for the app to function properly.
+
+## Results examples
+#### JSON
+![image](https://github.com/capybarin/NodeJs-test/assets/45234376/644e81e4-2939-421f-8c82-3edef7e30389)
+
+#### CSV
+![image](https://github.com/capybarin/NodeJs-test/assets/45234376/4b7188b9-9b97-41e2-b221-72eeeea9174b)
+
+#### Google Sheet
+![image](https://github.com/capybarin/NodeJs-test/assets/45234376/d31b605a-8909-45da-8d21-0e91f24789f5)
+
